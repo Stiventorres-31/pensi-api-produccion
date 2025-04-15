@@ -1,13 +1,11 @@
 <?php
 
-use Illuminate\Http\Request;
+
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\Api\ApiController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ClienteController;
 use App\Http\Controllers\FotoController;
 use App\Http\Controllers\GeneroController;
-use App\Http\Controllers\InmublesController;
 use App\Http\Controllers\InmuebleController;
 use App\Http\Controllers\InmuebleServicioController;
 use App\Http\Controllers\InmuebleServicioExtraController;
