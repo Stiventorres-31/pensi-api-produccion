@@ -87,6 +87,7 @@ class ApiController extends Controller
             $user = User::create([
                 "name" => $request->name,
                 "email" => $request->email,
+              
                 "password" => bcrypt($request->password)
             ]);
 
@@ -112,7 +113,7 @@ class ApiController extends Controller
         }
     }
 
-    //User 
+    //User
     public function get_users()
     {
         $users = User::all();
@@ -185,10 +186,10 @@ class ApiController extends Controller
                 "message" => "Usuario no tiene permiso para eliminar"
             ], 401);
         }
-    
+
         // Find the user by ID
         $user = User::find($id);
-    
+
         // Check if user exists
         if (!$user) {
             return response()->json([
@@ -196,7 +197,7 @@ class ApiController extends Controller
                 "message" => "Usuario no encontrado"
             ], 404);
         }
-    
+
         // Attempt to delete the user
         if ($user->delete()) {
             return response()->json([
@@ -284,7 +285,7 @@ class ApiController extends Controller
             'message' => 'Client logged in successfully',
             "data" => auth('client-api')->user(),
             'token' => $token,
-            'expires_in' => auth('client-api')->factory()->getTTL() 
+            'expires_in' => auth('client-api')->factory()->getTTL()
         ]);
     }
 

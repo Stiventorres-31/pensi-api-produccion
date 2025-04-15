@@ -38,7 +38,7 @@ class Inmueble extends Model
 
     public function fotos()
     {
-        return $this->hasMany(Foto::class, 'id_inmueble'); 
+        return $this->hasMany(Foto::class, 'id_inmueble');
     }
 
     public function servicios_ex(){
@@ -51,12 +51,12 @@ class Inmueble extends Model
 
     public function genero()
     {
-        return $this->belongsTo(Genero::class, 'id_genero'); 
+        return $this->belongsTo(Genero::class, 'id_genero');
     }
 
     public function usuario()
     {
-        return $this->belongsTo(User::class, 'id_usuario'); 
+        return $this->belongsTo(User::class, 'id_usuario');
     }
 
 

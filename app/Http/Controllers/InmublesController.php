@@ -671,7 +671,7 @@ class InmublesController extends Controller
             "porcentaje_descuento" => "sometimes|numeric|between:0,100",
             "precio_descuento" => "sometimes|numeric|between:0,999999999.99",
             "habitaciones" => "required|integer",
-            "id_genero" => "required|integer|exists:generos,id_genero",
+            "id_genero" => "required|integer|exists:genero,id_genero",
             "descripcion" => "required|string",
             "destacado" => "sometimes|integer|between:0,1",
             "link" => "required|string|url|max:255",
@@ -826,7 +826,7 @@ class InmublesController extends Controller
             "porcentaje_descuento" => "sometimes|numeric|between:0,100",
             "precio_descuento" => "sometimes|numeric|between:0,999999999.99",
             "habitaciones" => "required|integer",
-            "id_genero" => "required|integer|exists:generos,id_genero",
+            "id_genero" => "required|integer|exists:genero,id_genero",
             "descripcion" => "required|string",
             "destacado" => "sometimes|integer|between:0,1",
             "link" => "required|string|url|max:255",
@@ -885,7 +885,7 @@ class InmublesController extends Controller
             "porcentaje_descuento" => "numeric|between:0,100",
             "precio_descuento" => "numeric|between:0,999999999.99",
             "habitaciones" => "integer",
-            "id_genero" => "integer|exists:generos,id_genero",
+            "id_genero" => "integer|exists:genero,id_genero",
             "descripcion" => "string",
             "destacado" => "integer|between:0,1"
 
@@ -1287,7 +1287,7 @@ class InmublesController extends Controller
      *
      */
 
-    public function searchInmuebles(Request $request)
+    public function searchInmuebles()
     {
         $request->validate([
             "search" => "required|string",
@@ -1305,6 +1305,9 @@ class InmublesController extends Controller
             });
         }
         $inmuebles = $query->with(['servicios_ex.servicio_ex', 'servicios.servicio', 'fotos', 'genero', 'usuario'])->where('destacado', 1)->where('estado', 1)->orderByDesc('created_at')->get();
+
+
+
         // $inmuebles = $query->get();
         // $allData= Inmueble::with(['servicios_ex.servicio_ex', 'servicios.servicio', 'fotos', 'genero', 'usuario'])->find($inmuebles["id"]);
 
@@ -1317,100 +1320,5 @@ class InmublesController extends Controller
         ], 200);
     }
 
-    public function filterInmuebles(Request $request)
-    {
-        $query = Inmueble::where('estado', 1);
-        $query->orderBy('created_at', 'desc');
 
-        // Filtrar por rango de precio
-        if ($request->has('precio_min') ||  $request->has('precio_max')) {
-            $query->whereBetween('precio', [0, $request->precio_max]);
-        }
-
-        // Filtrar por rango de descuento
-        if ($request->has('descuento_min') && $request->has('descuento_max')) {
-            $query->whereBetween('porcentaje_descuento', [$request->descuento_min, $request->descuento_max]);
-        }
-
-        // Filtrar por región
-        if ($request->has('region')) {
-            $query->where('region', $request->region);
-        }
-
-        // Filtrar por país
-        if ($request->has('pais')) {
-            $query->where('pais', $request->pais);
-        }
-
-        // Filtrar por ciudad
-        if ($request->has('ciudad')) {
-            $query->where('ciudad', $request->ciudad);
-        }
-
-        if ($request->has('hubicacion')) {
-            $hubicacion = $request->hubicacion;
-
-            $query->where(function ($query) use ($hubicacion) {
-                $query->where('region', 'LIKE', "%$hubicacion%")
-                      ->orWhere('pais', 'LIKE', "%$hubicacion%")
-                      ->orWhere('ciudad', 'LIKE', "%$hubicacion%");
-            });
-        }
-
-
-        // Filtrar por número de habitaciones
-        if ($request->has('min_habitaciones') && $request->has('max_habitaciones')) {
-
-            //$minHabitaciones = $request->min_habitaciones;
-            $minHabitaciones = 0;
-            $maxHabitaciones = $request->max_habitaciones;
-            $query->whereBetween('habitaciones', [$minHabitaciones, $maxHabitaciones]);
-        } elseif ($request->has('min_habitaciones')) {
-
-            $minHabitaciones = $request->min_habitaciones;
-            $query->where('habitaciones', '>=', $minHabitaciones);
-        } elseif ($request->has('max_habitaciones')) {
-
-            $maxHabitaciones = $request->max_habitaciones;
-            $query->where('habitaciones', '<=', $maxHabitaciones);
-        }
-
-
-        // Filtrar por género
-        if ($request->has('id_genero')) {
-            $query->where('id_genero', $request->id_genero);
-        }
-
-        //filtro por servicios extra
-        if ($request->has('id_servicio_extra')) {
-            $servicioExtraId = $request->id_servicio_extra;
-            $query->whereHas('servicios_ex', function ($subquery) use ($servicioExtraId) {
-                $subquery->where('id_servicio_extra', $servicioExtraId);
-            });
-        }
-
-        // Filtrar por tipo de servicio inmueble
-        if ($request->has('id_tipo_servicio')) {
-            $servicioId = $request->id_tipo_servicio;
-            $query->whereHas('servicios', function ($subquery) use ($servicioId) {
-                $subquery->where('id_tipo_servicio', $servicioId);
-            });
-        }
-
-        // Filtrar por medida (metros cuadrados)
-        if ($request->has('metros')) {
-            $metros = intval($request->metros);
-
-            $query->whereRaw('CAST(medida AS SIGNED) <= ?', [$metros]);
-        }
-
-
-
-        $inmuebles = $query->get();
-
-        return response()->json([
-            'inmuebles' => $inmuebles,
-            'status' => 200,
-        ], 200);
-    }
 }

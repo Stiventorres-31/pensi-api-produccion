@@ -2,125 +2,120 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\Api\ApiController; 
+use App\Http\Controllers\Api\ApiController;
+use App\Http\Controllers\AuthController;
+use App\Http\Controllers\ClienteController;
+use App\Http\Controllers\FotoController;
+use App\Http\Controllers\GeneroController;
 use App\Http\Controllers\InmublesController;
+use App\Http\Controllers\InmuebleController;
+use App\Http\Controllers\InmuebleServicioController;
+use App\Http\Controllers\InmuebleServicioExtraController;
+use App\Http\Controllers\NoticiaController;
+use App\Http\Controllers\ServicioExtraController;
+use App\Http\Controllers\TipoServicioController;
+use App\Http\Controllers\UserController;
 
 /**
  * Open routes
- * 
+ *
  */
 
 
-Route::post("clients", [ApiController::class, "store"]);
+Route::post("clients", [ClienteController::class, "store"]);
 
-Route::post("login/user", [ApiController::class, "login"]);
-Route::post("login/client", [ApiController::class, "login_client"]);
+Route::post("login/user", [AuthController::class, "authUser"]);
+Route::post("login/client", [AuthController::class, "authClient"]);
 
-Route::get("generos", [InmublesController::class, "generos"]);
-Route::get("servicios/extra", [InmublesController::class, "servicios_ex"]);
-Route::get("servicios", [InmublesController::class, "servicios"]);
+Route::get("generos", [GeneroController::class, "index"]);
+Route::get("servicios/extra", [ServicioExtraController::class, "index"]);
+Route::get("servicios", [TipoServicioController::class, "index"]);
 
-Route::get("inmuebles", [InmublesController::class, "inmuebles"]);
-Route::get("inmuebles/{id}", [InmublesController::class, "show_inmueble_s"]);
+Route::get("inmuebles", [InmuebleController::class, "index"]);
+Route::get("inmuebles/{id}", [InmuebleController::class, "show"]);
 
-Route::get("destacados/inmuebles", [InmublesController::class, "destacados_Inmuebles"]);
-Route::post("buscar/inmuebles", [InmublesController::class, "searchInmuebles"]);
-Route::post("filtro/inmuebles", [InmublesController::class, "filterInmuebles"]);
 
-Route::get("noticias", [InmublesController::class, "noticias"]);
-Route::get("noticias/{id}", [InmublesController::class, "show_noticia"]);
+Route::get("destacados/inmuebles", [InmuebleController::class, "get_destacado"]);
+
+Route::post("buscar/inmuebles", [InmuebleController::class, "search"]);
+Route::post("filtro/inmuebles", [InmuebleController::class, "filtro"]);
+
+
+Route::get("noticias", [NoticiaController::class, "index"]);
+Route::get("noticias/{id}", [NoticiaController::class, "show"]);
 
 
 
 /**
  * Protected routes
- * 
+ *
  */
 
-Route::group([
-    "middleware" => "auth:api"
-], function(){
-    
-    Route::post("users", [ApiController::class, "store"]);
-    Route::get("users", [ApiController::class, "get_users"]);
-    Route::put("users/{id}", [ApiController::class, "put_users"]);
-    Route::delete("users/{id}", [ApiController::class, "delete_users"]);
+Route::group(["middleware" => "auth:api"], function () {
 
-    Route::get("clients", [ApiController::class, "get_clientes"]);
-    
-    Route::get("profile-user", [ApiController::class, "profile"]);
-    Route::get("refresh-token-user", [ApiController::class, "refreshToken"]);
-    Route::post("logout-user", [ApiController::class, "logout"]);
+    Route::post("users", [UserController::class, "store"])->middleware("admin");
+    Route::get("users", [UserController::class, "index"]);
+    Route::put("users/{id}", [UserController::class, "update"])->middleware("admin");
+    Route::delete("users/{id}", [UserController::class, "destroy"])->middleware("admin");
+
+    Route::get("clients", [ClienteController::class, "index"]);
+
+    // Route::get("profile-user", [ApiController::class, "profile"]);
+    // Route::get("refresh-token-user", [ApiController::class, "refreshToken"]);
+    Route::post("logout-user", [AuthController::class, "logoutUser"]);
 
     //Rutas crud genero
-    //Route::get("generos", [InmublesController::class, "generos"]);
-    Route::post("generos", [InmublesController::class, "store_generos"]);
-    Route::get("generos/{id}", [InmublesController::class, "show_genero"]);
-    Route::put("generos/{id}", [InmublesController::class, "update_genero"]);
-    Route::delete("generos/{id}", [InmublesController::class, "destroy_genero"]);
+    Route::post("generos", [GeneroController::class, "store"]);
+    Route::get("generos/{id}", [GeneroController::class, "show"]);
+    Route::put("generos/{id}", [GeneroController::class, "update"]);
+    Route::delete("generos/{id}", [GeneroController::class, "destroy"]);
 
     //Rutas crud servicios extra
-    //Route::get("servicios/extra", [InmublesController::class, "servicios_ex"]);
-    Route::post("servicios/extra", [InmublesController::class, "store_servicios_ex"]);
-    Route::get("servicios/extra/{id}", [InmublesController::class, "show_servicio_ex"]);
-    Route::put("servicios/extra/{id}", [InmublesController::class, "update_servicio_ex"]);
-    Route::delete("servicios/extra/{id}", [InmublesController::class, "destroy_servicio_ex"]);
+    Route::post("servicios/extra", [ServicioExtraController::class, "store"]);
+    Route::get("servicios/extra/{id}", [ServicioExtraController::class, "show"]);
+    Route::put("servicios/extra/{id}", [ServicioExtraController::class, "update"]);
+    Route::delete("servicios/extra/{id}", [ServicioExtraController::class, "destroy"]);
 
-    //Rutas crud servicios 
-    //Route::get("servicios", [InmublesController::class, "servicios"]);
-    Route::post("servicios", [InmublesController::class, "store_servicios"]);
-    Route::get("servicios/{id}", [InmublesController::class, "show_servicio"]);
-    Route::put("servicios/{id}", [InmublesController::class, "update_servicio"]);
-    Route::delete("servicios/{id}", [InmublesController::class, "destroy_servicio"]);
+    //Rutas crud servicios
+    Route::post("servicios", [TipoServicioController::class, "store"]);
+    Route::get("servicios/{id}", [TipoServicioController::class, "show"]);
+    Route::put("servicios/{id}", [TipoServicioController::class, "update"]);
+    Route::delete("servicios/{id}", [TipoServicioController::class, "destroy"]);
 
     //Rutas crud noticias
     //
-    Route::post("noticias", [InmublesController::class, "store_noticias"]);
-    Route::patch("noticias/{id}", [InmublesController::class, "update_noticia"]);
-    Route::post("noticias-update-imagen/{id}", [InmublesController::class, "update_noticia_ft"]);
-    Route::delete("noticias/{id}", [InmublesController::class, "destroy_noticia"]);
+    Route::post("noticias", [NoticiaController::class, "store"]);
+    Route::patch("noticias/{id}", [NoticiaController::class, "update"]);
+    Route::post("noticias-update-imagen/{id}", [NoticiaController::class, "image_update"]);
+    Route::delete("noticias/{id}", [NoticiaController::class, "destroy"]);
+
 
     //Rutas crud servicios inmuebles
-    Route::get("inmuebles/servicios", [InmublesController::class,"inmu_servicios"]);
-    Route::post("inmuebles/servicios", [InmublesController::class, "store_inmu_servicios"]);
-    Route::get("inmuebles/servicios/{id}", [InmublesController::class, "show_inmu_servicio"]);
-    Route::put("inmuebles/servicios/{id}", [InmublesController::class, "update_inmu_servicios"]);
-    Route::delete("inmuebles/servicios/{id}", [InmublesController::class, "destroy_inmu_servicios"]);
+    Route::post("inmuebles/servicios", [InmuebleServicioController::class, "store"]);
+    Route::delete("inmuebles/servicios/{id}", [InmuebleServicioController::class, "destroy"]);
 
     //Rutas crud servicios extra inmuebles
-    Route::get("inmuebles/servicios/extra", [InmublesController::class,"inmu_servi_extra"]);
-    Route::post("inmuebles/servicios/extra", [InmublesController::class, "store_inmu_servi_extra"]);
-    Route::get("inmuebles/servicios/extra/{id}", [InmublesController::class, "show_inmu_servi_extra"]);
-    Route::put("inmuebles/servicios/extra/{id}", [InmublesController::class, "update_inmu_servi_extra"]);
-    Route::delete("inmuebles/servicios/extra/{id}", [InmublesController::class, "destroy_inmu_servi_extra"]);
+    Route::post("inmuebles/servicios/extra", [InmuebleServicioExtraController::class, "store"]);
+    Route::delete("inmuebles/servicios/extra/{id}", [InmuebleServicioExtraController::class, "destroy"]);
 
     //Rutas crud inmuebles
-    
-    //Route::get("inmuebles", [InmublesController::class, "inmuebles"]);
-    Route::post("inmuebles", [InmublesController::class, "store_inmuebles"]);
-    Route::get("user/inmuebles", [InmublesController::class, "user_show_inmueble"]);
-    //Route::get("inmuebles/{id}", [InmublesController::class, "show_inmueble"]);
-    Route::put("inmuebles/{id}", [InmublesController::class, "update_inmueble"]);
-    Route::patch("inmuebles/{id}", [InmublesController::class, "update_patch_inmueble"]);
-    Route::put("inmuebles/status/{id}", [InmublesController::class, "update_status"]);
-    Route::delete("inmuebles/{id}", [InmublesController::class, "destroy_inmueble"]);
+
+    Route::post("inmuebles", [InmuebleController::class, "store"]);
+    Route::get("user/inmuebles", [InmuebleController::class, "index_user"]);
+    Route::put("inmuebles/{id}", [InmuebleController::class, "update"]);
+    //Route::put("inmuebles/status/{id}", [InmuebleController::class, "update_show"]);
+    Route::delete("inmuebles/{id}", [InmuebleController::class, "destroy"]);
 
     //Crud imagenes inmuebles
-    Route::post("upload/imagenes", [InmublesController::class, "store_fotos"]);
-    Route::get("imagenes/inmuebles/{id}", [InmublesController::class, "show_fotos"]);
-    Route::delete("imagenes/{id}", [InmublesController::class, "destroy_fotos"]);
+    Route::post("upload/imagenes", [FotoController::class, "store"]);
+    Route::delete("imagenes/{id}", [FotoController::class, "destroy"]);
 });
 
 
 
 // Rutas protegidas para clientes
-Route::group([
-    "middleware" => "auth:client-api"  // Usando el guard client-api para clientes
-], function () {
-    Route::get("profile-client", [ApiController::class, "profile"]);
-    Route::get("refresh-token-client", [ApiController::class, "refreshToken"]);
-    Route::post("logout-client", [ApiController::class, "logout"]);
+Route::group(["middleware" => "auth:client-api"], function () {
+    // Route::get("profile-client", [ApiController::class, "profile"]);
+    // Route::get("refresh-token-client", [ApiController::class, "refreshToken"]);
+    Route::post("logout-client", [AuthController::class, "logoutClient"]);
 });
-
-
-

@@ -17,4 +17,8 @@ class Foto extends Model
         'url',
         'destacado',
     ];
+
+    public function inmuebles(){
+        return $this->belongsTo(Inmueble::class,'id_inmueble');
+    }
 }
