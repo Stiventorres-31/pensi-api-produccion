@@ -258,11 +258,11 @@ class InmuebleController extends Controller
         ->when($request->region, fn($query, $region) => $query->where('region', $region))
         ->when($request->pais, fn($query, $pais) => $query->where('pais', $pais))
         ->when($request->ciudad, fn($query, $ciudad) => $query->where('ciudad', $ciudad))
-        ->when($request->hubicacion, function ($query, $hubicacion) {
-            $query->where(function ($q) use ($hubicacion) {
-                $q->where('region', 'ilike', "%{$hubicacion}%")
-                  ->orWhere('pais', 'ilike', "%{$hubicacion}%")
-                  ->orWhere('ciudad', 'ilike', "%{$hubicacion}%");
+        ->when($request->ubicacion, function ($query, $ubicacion) {
+            $query->where(function ($q) use ($ubicacion) {
+                $q->where('region', 'ilike', "%{$ubicacion}%")
+                  ->orWhere('pais', 'ilike', "%{$ubicacion}%")
+                  ->orWhere('ciudad', 'ilike', "%{$ubicacion}%");
             });
         })
         ->when($request->filled(['min_habitaciones', 'max_habitaciones']), function ($query) use ($request) {
