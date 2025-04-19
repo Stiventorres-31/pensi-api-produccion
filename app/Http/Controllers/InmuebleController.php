@@ -37,9 +37,11 @@ class InmuebleController extends Controller
                 return ResponseHelper::responseApi(422, $validator->errors()->first());
             }
 
+          
+
             $inmuebles = Inmueble::with(['servicios_ex.servicio_ex', 'servicios.servicio', 'fotos', 'genero', 'usuario'])
-            ->where("nombre","like",'%' . $request->search . '%')
-            ->orWhere("descripcion","like",'%' . $request->search . '%')
+            ->where("nombre","ilike",'%' . $request->search . '%')
+            ->orWhere("descripcion","ilike",'%' . $request->search . '%')
             ->where("estado",1)
             ->orderByDesc('created_at')
             ->get();
