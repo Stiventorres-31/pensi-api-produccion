@@ -245,6 +245,8 @@ class InmuebleController extends Controller
         }
     }
     public function filtro(Request $request){
+
+        
         $inmuebles = Inmueble::with(['servicios', 'servicios_ex']) // relaciones necesarias
         ->where('estado', 1)
         ->when($request->precio_max, function ($query, $precioMax) {
@@ -258,9 +260,9 @@ class InmuebleController extends Controller
         ->when($request->ciudad, fn($query, $ciudad) => $query->where('ciudad', $ciudad))
         ->when($request->hubicacion, function ($query, $hubicacion) {
             $query->where(function ($q) use ($hubicacion) {
-                $q->where('region', 'like', "%{$hubicacion}%")
-                  ->orWhere('pais', 'like', "%{$hubicacion}%")
-                  ->orWhere('ciudad', 'like', "%{$hubicacion}%");
+                $q->where('region', 'ilike', "%{$hubicacion}%")
+                  ->orWhere('pais', 'ilike', "%{$hubicacion}%")
+                  ->orWhere('ciudad', 'ilike', "%{$hubicacion}%");
             });
         })
         ->when($request->filled(['min_habitaciones', 'max_habitaciones']), function ($query) use ($request) {
