@@ -103,7 +103,7 @@ class InmuebleController extends Controller
                 "id_usuario" => auth()->user()->id,
                 "id_genero" => strtoupper(trim($request->id_genero)),
                 "destacado" => strtoupper(trim($request->get('destacado', 0))),
-                "link" => strtoupper(trim($request->link)),
+                "link" => trim($request->link),
                 "estado" => strtoupper(trim($request->get('estado', 0))),
                 "descripcion" => strtoupper(trim($request->descripcion)),
             ]);

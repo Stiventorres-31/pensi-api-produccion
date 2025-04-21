@@ -17,7 +17,8 @@ class FotoController extends Controller
             $validator = Validator::make($request->all(), [
                 "inmueble_id" => "required|integer|exists:inmuebles,id_inmueble",
                 "fotos" => "required|array",
-                "fotos.*" => "image|mimes:jpeg,png,jpg|dimensions:width=1080,height=1080|max:4096",
+                //"fotos.*" => "image|mimes:jpeg,png,jpg|dimensions:width=1080,height=1080|max:4096",
+                "fotos.*" => "image|mimes:jpeg,png,jpg",
                 "destacado" => "integer|in:0,1"
             ]);
 

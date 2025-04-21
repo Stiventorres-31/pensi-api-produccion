@@ -49,7 +49,7 @@ class NoticiaController extends Controller
                 'titulo' => 'required|string|max:255',
                 'descripcion' => 'required|string',
                 'etiqueta' => 'required|string|max:50',
-                'foto' => 'required|image|mimes:jpeg,png,jpg|max:4096',
+                'foto' => 'required|image|mimes:jpeg,png,jpg',
                 'link' => 'string|url|max:255',
             ]);
 
@@ -65,11 +65,11 @@ class NoticiaController extends Controller
             $url = Storage::url($path);
             // Crear la noticia
             $noticia = Noticia::create([
-                'titulo' => $request->titulo,
-                'descripcion' => $request->descripcion,
-                'etiqueta' => $request->etiqueta,
-                'url_foto' => $url,
-                'link' => $request->link,
+                'titulo' => strtoupper(trim($request->titulo)),
+                'descripcion' => strtoupper(trim($request->descripcion)),
+                'etiqueta' => strtoupper(trim($request->etiqueta)),
+                'url_foto' => trim($url),
+                'link' => strtoupper(trim($request->link)),
                 'id_user' => auth()->user()->id,
             ]);
 
@@ -125,7 +125,7 @@ class NoticiaController extends Controller
         try {
             $validator = Validator::make(array_merge($request->all(), ['id' => $id]), [
                 'id'   => 'required|integer|exists:noticias,id',
-                'foto' => 'required|image|mimes:jpeg,png,jpg|max:4096',
+                'foto' => 'required|image|mimes:jpeg,png,jpg',
 
             ]);
             if ($validator->fails()) {
