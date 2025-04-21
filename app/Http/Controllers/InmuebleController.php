@@ -17,7 +17,7 @@ class InmuebleController extends Controller
     public function index()
     {
         try {
-            $inmuebles = Inmueble::where("estado",1)->get();
+            $inmuebles = Inmueble::where("estado", 1)->get();
             return ResponseHelper::responseApi(200, "Se ha obtenido correctamente", ["inmuebles" => $inmuebles]);
         } catch (\Throwable $th) {
             Log::error("Error al obtener todos los datos " . $th->getMessage());
@@ -28,7 +28,8 @@ class InmuebleController extends Controller
 
 
     //BUSCAR POR NOMBRE
-    public function search(Request $request){
+    public function search(Request $request)
+    {
         try {
             $validator = Validator::make($request->all(), [
                 "search" => "required|string"
@@ -37,14 +38,14 @@ class InmuebleController extends Controller
                 return ResponseHelper::responseApi(422, $validator->errors()->first());
             }
 
-          
+
 
             $inmuebles = Inmueble::with(['servicios_ex.servicio_ex', 'servicios.servicio', 'fotos', 'genero', 'usuario'])
-            ->where("nombre","ilike",'%' . $request->search . '%')
-            ->orWhere("descripcion","ilike",'%' . $request->search . '%')
-            ->where("estado",1)
-            ->orderByDesc('created_at')
-            ->get();
+                ->where("nombre", "like", '%' . $request->search . '%')
+                ->orWhere("descripcion", "like", '%' . $request->search . '%')
+                ->where("estado", 1)
+                ->orderByDesc('created_at')
+                ->get();
             return ResponseHelper::responseApi(200, "Se ha obtenido correctamente", ["inmuebles" => $inmuebles]);
         } catch (\Throwable $th) {
             Log::error("Error al consultar un inmueble por nombre " . $th->getMessage());
@@ -234,7 +235,8 @@ class InmuebleController extends Controller
         }
     }
 
-    public function get_destacado(){
+    public function get_destacado()
+    {
         try {
             $inmuebles = Inmueble::with(['servicios_ex.servicio_ex', 'servicios.servicio', 'fotos', 'genero', 'usuario'])->where('destacado', 1)->where('estado', 1)->orderByDesc('created_at')->get();
 
@@ -244,46 +246,53 @@ class InmuebleController extends Controller
             return ResponseHelper::responseApi(500, "Error interno en el servidor");
         }
     }
-    public function filtro(Request $request){
+    public function filtro(Request $request)
+    {
 
-        
-        $inmuebles = Inmueble::with(['servicios', 'servicios_ex']) // relaciones necesarias
-        ->where('estado', 1)
-        ->when($request->precio_max, function ($query, $precioMax) {
-            $query->whereBetween('precio', [0, $precioMax]);
-        })
-        ->when($request->filled(['descuento_min', 'descuento_max']), function ($query) use ($request) {
-            $query->whereBetween('porcentaje_descuento', [$request->descuento_min, $request->descuento_max]);
-        })
-        ->when($request->region, fn($query, $region) => $query->where('region', $region))
-        ->when($request->pais, fn($query, $pais) => $query->where('pais', $pais))
-        ->when($request->ciudad, fn($query, $ciudad) => $query->where('ciudad', $ciudad))
-        ->when($request->ubicacion, function ($query, $ubicacion) {
-            $query->where(function ($q) use ($ubicacion) {
-                $q->where('region', 'ilike', "%{$ubicacion}%")
-                  ->orWhere('pais', 'ilike', "%{$ubicacion}%")
-                  ->orWhere('ciudad', 'ilike', "%{$ubicacion}%");
-            });
-        })
-        ->when($request->filled(['min_habitaciones', 'max_habitaciones']), function ($query) use ($request) {
-            $query->whereBetween('habitaciones', [
-                $request->min_habitaciones ?? 0,
-                $request->max_habitaciones
-            ]);
-        })->when($request->min_habitaciones && !$request->max_habitaciones, function ($query) use ($request) {
-            $query->where('habitaciones', '>=', $request->min_habitaciones);
-        })->when(!$request->min_habitaciones && $request->max_habitaciones, function ($query) use ($request) {
-            $query->where('habitaciones', '<=', $request->max_habitaciones);
-        })->when($request->id_genero, fn($query, $id) => $query->where('id_genero', $id))
-        ->when($request->id_servicio_extra, function ($query, $id) {
-            $query->whereHas('servicios_ex', fn($q) => $q->where('id_servicio_extra', $id));
-        })->when($request->id_tipo_servicio, function ($query, $id) {
-            $query->whereHas('tiposServicios', fn($q) => $q->where('id_tipo_servicio', $id));
-        })->when($request->metros, function ($query, $metros) {
-            $query->whereRaw('CAST(medida AS SIGNED) <= ?', [intval($metros)]);
-        })->orderByDesc('created_at')
-        ->get();
 
-        return ResponseHelper::responseApi(200, "Se ha obtenido correctamente", ["inmuebles" => $inmuebles]);
+        try {
+            $inmuebles = Inmueble::with(['servicios', 'servicios_ex']) // relaciones necesarias
+                ->where('estado', 1)
+                ->when($request->precio_max, function ($query, $precioMax) {
+                    $query->whereBetween('precio', [0, $precioMax]);
+                })
+                ->when($request->filled(['descuento_min', 'descuento_max']), function ($query) use ($request) {
+                    $query->whereBetween('porcentaje_descuento', [$request->descuento_min, $request->descuento_max]);
+                })
+                ->when($request->region, fn($query, $region) => $query->where('region', $region))
+                ->when($request->pais, fn($query, $pais) => $query->where('pais', $pais))
+                ->when($request->ciudad, fn($query, $ciudad) => $query->where('ciudad', $ciudad))
+                ->when($request->ubicacion, function ($query, $ubicacion) {
+                    $query->where(function ($q) use ($ubicacion) {
+                        $q->where('region', 'like', "%{$ubicacion}%")
+                            ->orWhere('pais', 'like', "%{$ubicacion}%")
+                            ->orWhere('ciudad', 'like', "%{$ubicacion}%");
+                    });
+                })
+                ->when($request->filled(['min_habitaciones', 'max_habitaciones']), function ($query) use ($request) {
+                    $query->whereBetween('habitaciones', [
+                        $request->min_habitaciones ?? 0,
+                        $request->max_habitaciones
+                    ]);
+                })->when($request->min_habitaciones && !$request->max_habitaciones, function ($query) use ($request) {
+                    $query->where('habitaciones', '>=', $request->min_habitaciones);
+                })->when(!$request->min_habitaciones && $request->max_habitaciones, function ($query) use ($request) {
+                    $query->where('habitaciones', '<=', $request->max_habitaciones);
+                })->when($request->id_genero, fn($query, $id) => $query->where('id_genero', $id))
+                ->when($request->id_servicio_extra, function ($query, $id) {
+                    $query->whereHas('servicios_ex', fn($q) => $q->where('id_servicio_extra', $id));
+                })->when($request->id_tipo_servicio, function ($query, $id) {
+                    $query->whereHas('tiposServicios', fn($q) => $q->where('id_tipo_servicio', $id));
+                })->when($request->metros, function ($query, $metros) {
+                    $query->whereRaw('CAST(medida AS SIGNED) <= ?', [intval($metros)]);
+                })->orderByDesc('created_at')
+                ->get();
+
+            return ResponseHelper::responseApi(200, "Se ha obtenido correctamente", ["inmuebles" => $inmuebles]);
+        } catch (\Throwable $th) {
+
+            Log::error("Error en el filtro de inmuebles cliente ". $th->getMessage());
+            return ResponseHelper::responseApi(500, $th->getMessage());
+        }
     }
 }
