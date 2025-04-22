@@ -41,9 +41,11 @@ class InmuebleController extends Controller
 
 
             $inmuebles = Inmueble::with(['servicios_ex.servicio_ex', 'servicios.servicio', 'fotos', 'genero', 'usuario'])
-                ->where("nombre", "like", '%' . $request->search . '%')
-                ->orWhere("descripcion", "like", '%' . $request->search . '%')
-                ->orWhere("codigo", "like", '%' . $request->search . '%')
+            ->where(function ($query) use ($request) {
+                $query->where("nombre", "like", '%' . $request->search . '%')
+                      ->orWhere("descripcion", "like", '%' . $request->search . '%')
+                      ->orWhere("codigo", "like", '%' . $request->search . '%');
+            })
                 ->where("estado", 1)
                 ->orderByDesc('created_at')
                 ->get();
